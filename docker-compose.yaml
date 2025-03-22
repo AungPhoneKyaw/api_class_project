@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  spring-app:
+    build: .
+    container_name: spring-boot-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://root:example@52.9.95.180:27017/music_db?authSource=admin
+    networks:
+      - app-network
+  # spring-app:
+  #   image: apkyaw/project-spring-app:latest  # Use the pre-built image from Docker Hub
+  #   container_name: spring-boot-app
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - mongo
+  #   environment:
+  #     SPRING_DATA_MONGODB_URI: mongodb://root:example@52.9.95.180:27017/music_db?authSource=admin
+  #   networks:
+  #     - app-network
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_SERVER: mongo
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  mongo_data:
